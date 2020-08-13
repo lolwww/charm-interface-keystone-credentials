@@ -23,6 +23,13 @@ class KeystoneProvides(RelationBase):
     @hook('{provides:keystone-credentials}-relation-joined')
     def joined(self):
         self.set_state('{relation_name}.connected')
+        self.set_state('{relation_name}.available.updated')
+        hookenv.atexit(self._clear_updated)
+
+    @hook('{provides:keystone-credentials}-relation-changed')
+    def changed(self):
+        self.set_state('{relation_name}.available.updated')
+        hookenv.atexit(self._clear_updated)
 
     @hook('{provides:keystone-credentials}-relation-{broken,departed}')
     def departed(self):
@@ -37,3 +44,5 @@ class KeystoneProvides(RelationBase):
         self.set_local(**credentials)
         self.set_remote(**credentials)
 
+    def _clear_updated(self):
+        self.remove_state('{relation_name}.available.updated')
