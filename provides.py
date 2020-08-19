@@ -23,32 +23,11 @@ class KeystoneProvides(RelationBase):
     @hook('{provides:keystone-credentials}-relation-joined')
     def joined(self):
         self.set_state('{relation_name}.connected')
-        self.update_state()
         self.set_state('{relation_name}.available.updated')
         hookenv.atexit(self._clear_updated)
 
-    def update_state(self):
-        """Update the states of the relations based on the data that the
-        relation has.
-        If the :meth:`base_data_complete` is False then all of the states
-        are removed.  Otherwise, the individual states are set according to
-        their own data methods.
-        """
-        # base_complete = self.base_data_complete()
-        states = {
-            '{relation_name}.available': True,
-            '{relation_name}.available.ssl': False,
-            '{relation_name}.available.auth': True
-        }
-        for k, v in states.items():
-            if v:
-                self.set_state(k)
-            else:
-                self.remove_state(k)
-
     @hook('{provides:keystone-credentials}-relation-changed')
     def changed(self):
-        self.update_state()
         self.set_state('{relation_name}.available.updated')
         hookenv.atexit(self._clear_updated)
 
